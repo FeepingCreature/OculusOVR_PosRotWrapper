@@ -27,6 +27,19 @@ void OVRWrapper::getRotation(float &pitch, float &yaw, float &roll) {
 	pose.Rotation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&yaw, &pitch, &roll);
 }
 
+void OVRWrapper::getRotationQuat(float &x, float &y, float &z, float &w) {
+	ovrTrackingState ts = ovrHmd_GetTrackingState(hmd, 0.0);
+	OVR::Posef pose = ts.HeadPose.ThePose;
+	x = pose.Rotation.x;
+	y = pose.Rotation.y;
+	z = pose.Rotation.z;
+	w = pose.Rotation.w;
+}
+
+void OVRWrapper::resetOrientation() {
+	ovrHmd_RecenterPose(hmd);
+}
+
 void OVRWrapper::getPosition(float &x, float &y, float &z) {
 	ovrTrackingState ts = ovrHmd_GetTrackingState(hmd, 0.0);
 	OVR::Posef pose = ts.HeadPose.ThePose;
@@ -64,5 +77,17 @@ C_DLLEXPORT Vector3f wrapper_get_position(void *wrapper) {
 	OVRWrapper *wr = (OVRWrapper*) wrapper;
 	Vector3f res;
 	wr->getPosition(res.x, res.y, res.z);
+	return res;
+}
+
+C_DLLEXPORT void wrapper_reset_orientation(void *wrapper) {
+	OVRWrapper *wr = (OVRWrapper*) wrapper;
+	wr->resetOrientation();
+}
+
+C_DLLEXPORT Quat wrapper_get_quat_rotaton(void *wrapper) {
+	OVRWrapper *wr = (OVRWrapper*) wrapper;
+	Quat res;
+	wr->getRotationQuat(res.x, res.y, res.z, res.w);
 	return res;
 }
